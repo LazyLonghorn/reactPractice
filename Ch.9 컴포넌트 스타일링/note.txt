@@ -1,0 +1,16 @@
+1. CSS
+
+2. Sass
+
+CSS 전처리기 / sass, scss 확장자
+node-sass 로 Sass -> css 로 변환해주는 라이브러리
+
+sass 는 CSS 의 전처리기 이기 때문에 웹에서 단독으로 적용될 수 없다.
+따라서, Convert 가 필요한데 대표적으로 위에서 언급한 node-sass 라이브러리이다.
+
+https://heropy.blog/2018/01/31/sass/
+
+※ 설치하지 않고 실행하면 오류 발생
+
+
+
