@@ -1,3 +1,75 @@
 [immer를 사용하여 더 쉽게 불변성 유지하기]
 
+
+[Ch.11 컴포넌트 최적화] 리액트에서 컴포넌트의 상태를 업데이트할 때, 중요한 점은 불변성을 지키는 것이다.
+불변성을 지키는 것은 기존 객체에 수정하는 것이 아닌, 새로운 객체를 만들어서 사용하는 것이다.
+
+이런 불변성을 유지하는 것이 객체의 구조가 복잡하지 않은 경우, 쉽게 새로운 객체로 복사할 수 있다.
+하지만, 복잡한 객체 구조에서는 불변성을 유지하는 것이 어렵다.
+(객체가 깊은 복사가 필요하다.)
+
+
+이렇게 객체 구조가 복잡하는 등의 경우, immer 라이브러리를 사용하면, 효과적으로 불변성을 유지할 수 있다.
+
 yarn add immer
+
+
+
+※ 컴포넌트 반복할 때, 반드시 forEach 가 아니라 map 을 사용해야함
+
+
+
+※ immer 예시코드
+import produce from 'immer'
+const nextState = produce(originalState, draft => {
+    // 변경하고 싶은 값 변경하기
+    draft.somewhere.deep.inside = 5;
+});
+
+
+첫 번째 파라미터 : 수정하고 싶은 상태
+두 번째 파라마티 : 상태를 어떻게 업데이트할지 정의하는 함수
+
+
+두번째로 전달한 함수 내부에서 원하는 값으로 변경하면, produce 함수가 불변성 유지를 대신해주고
+새로운 상태를 생성해준다. 
+(새로운 객체를 반환해주는 개념으로 보면 편하다.)
+
+
+배열의 경우에도 쉽게 불변성을 유지할 수 있다.
+(아래와 같이 단순히 배열 구조를 변경하는 형태로 가능하다.)
+
+const nextState = produce(originalState, draft => {
+    const todo = draft.find(t => t.id === 2);
+    todo.checked = true;
+
+    draft.push({
+        id: 3,
+        todo: 'Todo Start',
+        checked: false
+    });
+
+    draft.slice(draft.findIndex(t => t.id === 1), 1);
+});
+
+
+
+immer 의 첫 번째 파라미터가 함수형태라면, 업데이트 함수를 반환합니다.
+이를 통해서 useState 의 함수형 업데이트와 함께 사용할 수 있다.
+
+[함수형 업데이트]
+const [number, setNumber] = useState(0);
+const onIncrease = useCallback(() => setNumber(prev => prev + 1), []);
+
+
+ex)
+setForm(
+    produce(draft => {
+        draft[name] = value;
+    })
+);
+
+
+
+
+
