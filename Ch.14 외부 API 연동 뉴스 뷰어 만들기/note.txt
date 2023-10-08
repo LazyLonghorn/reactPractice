@@ -1,0 +1,117 @@
+[외부 API 연동 뉴스 뷰어 만들기]
+
+
+axios 는 현재 가장 많이 사용되는 HTTP 클라이언트 라이브러리
+ # Promise 기반 (async/await 로 변경해도 된다.)
+
+프로젝트를 생성하고, 기본적인 환경 구성을 하자
+ # .prettierrc : 코드 스타일 설정
+ # jsconfig.json : 파일 자동 불러오기
+
+
+※ 외부 라이브러리 import 기본 Path 설정
+라이브러리를 import 할 때, 아래 예시와 같이 node_modules Full Path 로 설정되는 것을 확인 할 수 있다.
+(ex) import axios from '../node_modules/axios/index';
+
+책과 같이 기본 모듈 이름으로 설정하고자 할 때 아래와 같이 jsconfig 의 [paths] 설정을 통해 가능하다.
+※ IntelliSense 가 나타나지 않는 불편함을 개선하고자 
+
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "baseUrl": ".",
+        "paths": {
+            "axios": ["node_modules/axios/index"],
+            "styled-components": ["node_modules/styled-components/dist/index"],
+        }
+    }
+}
+
+※ https://stackoverflow.com/questions/54291144/typescript-set-node-modules-directory-path
+
+
+
+[App.js]
+import React, { useState } from 'react';
+import axios from '../node_modules/axios/index';
+
+const App = () => {
+    const [data, setData] = useState(null);
+    const onClick = async () => {
+        // axios.get('https://jsonplaceholder.typicode.com/todos/1').then(res => {
+        //     setData(res.data);
+        // })
+
+        try {
+            const res = await axios.get('https://newsapi.org/v2/top-headlines?country=kr&apiKey=882f462a67c647daa5c2efa09ffa8027');
+            setData(res.data);
+        } catch(e) {
+            console.log(e);
+        }
+    }   
+
+    return (
+        <div>
+            <div>
+                <button onClick={onClick}>Load</button>
+            </div>
+            { data && <textarea rows={7} value={JSON.stringify(data, null, 2)} readOnly={true}/> }
+        </div>
+    );
+};
+
+export default App;
+
+
+
+
+newsapi 를 사용하기 위해서 https://newsapi.org/register 에서 가입을 먼저하자
+https://newsapi.org/s/south-korea-news-api 주소에서 한국뉴스 API 에 대한 정보가 있다.
+
+ API KEY : 882f462a67c647daa5c2efa09ffa8027
+ Request URL : 'https://newsapi.org/v2/top-headlines?country=kr&apiKey=882f462a67c647daa5c2efa09ffa8027'
+
+
+
+
+주의할점은 useEffect 함수에 등록한 함수에서 async/await 를 직접 붙여서 사용하면 안된다.
+useEffect 의 반환값은 뒷정리 함수이여야 하기 때문이다. 
+이런 경우, 함수 내부에 async/await 가 붙은 또 다른 함수를 설정해야 한다.
+
+(ex)
+
+useEffect(() => {
+    const fetchData = async () => { await ... }
+    
+    fetchData();
+}, []);
+
+
+[NewsList] 소스에서 주의할 점은, articles 이 없는 경우 null 을 반환해주는 것이다.
+이를 하지 않으면, 아직 데이터가 없을 때 map 함수를 호출하게 되고 그러면 렌더링 과정에서 오류가 발생한다.
+이 때문에 흰 페이지가 나타날 수 있다.
+
+
+
+
+NewsPage 를 통해서 라우터를 설정할 때, App 에서 path 부분에 "/:category?" 로 설정하고 있다.
+여기서 마지막의 ? 는 선택적이라는 의미이다. ( 없을 수도 있다는 것을 의미 )
+※ / 로 작성하면, NewsPages 로 가지 않는다.
+
+Router 로 연결할 때, 주의할 점은 책에서 NavLink 의 Active 하는 방식이 달라진 점을 참고해야한다.
+※ exact 등은 사라짐.
+
+
+
+NavLink 를 연결하는 부분에서
+styled-component 와 NavLink 를 연결하면, NavLink 의 className 부분에 해당하는 함수가 동작하지 않는다.
+그래서 그냥 NavLink 와 css 조합으로 구성했다.
+
+
+
+※ https://velog.io/@jm1225/styled-components-NavLink-active-styled-input
+위 블로그에서도 동일한 현상 발생
+해결한 방식은 다르지만, 참고할 필요가 있다.
+
+
+usePromise : API 처럼 Promise 를 호출하고자 할 때, 만드는 custom Hooks

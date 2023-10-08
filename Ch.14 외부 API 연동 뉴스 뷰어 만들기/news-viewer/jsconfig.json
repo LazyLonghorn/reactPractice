@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "baseUrl": ".",
+        "paths": {
+            "axios": ["node_modules/axios/index"],
+            "styled-components": ["node_modules/styled-components/dist/index"],
+            "react-router-dom": ["node_modules/react-router-dom/dist/index"]
+        }
+    }
+}
