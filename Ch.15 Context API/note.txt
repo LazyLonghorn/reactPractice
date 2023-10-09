@@ -1,0 +1,59 @@
+[Context API]
+
+
+Context API 는 전역적으로 데이터를 사용할 때 유용한 API ( 로그인 정보, 테마 등 )
+
+만약 최하위 컴포넌트에서 전역으로 사용되는 정보가 업데이트 되고, 이는 다른 Branch 에 컴포넌트에서도
+업데이트가 발생해야하면, props 로 전달하기 위해서 수많은 컴포넌트를 거쳐야한다.
+
+때문에 상태관리 라이브러리(Redux) 등을 사용했지만, Context API 를 통해서도 이제 수월하게 사용할 수 있다.
+※ React V16.3 부터
+
+
+
+
+Context 를 생성할 때는, React 에서 제공하는 createContext() 함수를 사용.
+(ex) const ColorContext = createContext({ color: 'black' });
+
+
+Context 에서 설정한 값을 컴포넌트에서 사용할 때는, props 를 통해 받아오는 것이 아닌,
+Context 의 Consumer 컴포넌트를 통해 가지고 온다.
+
+(ex)
+    <ColorContext.Consumer>
+        {value => ()}
+    </ColorContext.Consumer>
+
+※ 컴포넌트 사이에 함수를 넣는 패턴을 Function as a child 혹은 Render Props 라고 한다.
+
+
+
+값을 변경하고자 한다면, Provider 를 사용하면 된다.
+value 를 사용하지 않으면 오류가 발생.
+
+<ColorContext.Provider value={{...}}>
+    ...
+</ColorContext.Provider>
+
+
+
+동적으로 Context API 변경하기
+
+Context value 에는 값이 아닌 함수도 가능하다.
+
+[ColorContext] 부분의 Provider 를 렌더링 형태로 반환하는 방식과 state, actions 구성을 확인하기
+App.js 부분의 Provider 를 설정하자 (전체적으로 값을 변경하는 컴포넌트를 감싸는 개념으로)
+
+SelectColorBox 부분에서 ColorContext 의 actions 부분을 사용하고 있기 때문에 Consumer 개념.
+
+
+
+
+Consumer 대신, useContext Hooks 을 통해서 값을 사용할 수 있다.
+(Render Props 방식을 사용하지 않아도 된다.)
+
+(ex) const { state } = useContext(ColorContext);
+
+
+
+
